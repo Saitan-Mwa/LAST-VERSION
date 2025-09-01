@@ -3424,7 +3424,7 @@ toggle.MouseButton1Click:Connect(function()
         if selectedGun and tonumber(amountBox.Text) then
             ReplicatedStorage.GunShop.Events.Purchase:FireServer(selectedGun, tonumber(amountBox.Text))
         end
-        task.wait(0.3)
+        task.wait(0.001)
     end
 end)
 
@@ -3573,7 +3573,7 @@ toggle.MouseButton1Click:Connect(function()
         if selectedGun and tonumber(amountBox.Text) then
             ReplicatedStorage:WaitForChild("PurchaseEvent"):FireServer(selectedGun, tonumber(amountBox.Text))
         end
-        task.wait(0.3)
+        task.wait(0.001)
     end
 end)
 
