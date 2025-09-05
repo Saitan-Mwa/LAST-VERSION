@@ -6234,6 +6234,214 @@ ToggleButton.MouseButton1Click:Connect(function()
 end)
 end)
 
+addMainMenuButton("AIMBOT ON / OFF  [3KTG]", function()
+	--// CONFIG
+getgenv().Environment = {
+    FOVSettings = {
+        Amount = 150,
+        Visible = true,
+        Color = Color3.fromRGB(255, 255, 255) -- White FOV
+    },
+    Aimbot = {
+        Enabled = true,
+        AimPart = "Head"
+    }
+}
+
+--// SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+--// CREATE FOV CIRCLE
+local Circle = Drawing.new("Circle")
+Circle.Radius = Environment.FOVSettings.Amount
+Circle.Thickness = 2
+Circle.Transparency = 1
+Circle.Filled = false
+Circle.Color = Environment.FOVSettings.Color
+
+--// UPDATE FOV CIRCLE POSITION
+RunService.RenderStepped:Connect(function()
+    Circle.Position = UIS:GetMouseLocation()
+    Circle.Visible = Environment.FOVSettings.Visible
+    Circle.Radius = Environment.FOVSettings.Amount
+end)
+
+--// AIMBOT FUNCTION
+local function GetClosestPlayer()
+    local closest, dist = nil, Environment.FOVSettings.Amount
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(Environment.Aimbot.AimPart) then
+            local headPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(player.Character[Environment.Aimbot.AimPart].Position)
+            if onScreen then
+                local mag = (Vector2.new(headPos.X, headPos.Y) - UIS:GetMouseLocation()).Magnitude
+                if mag < dist then
+                    closest = player
+                    dist = mag
+                end
+            end
+        end
+    end
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    if Environment.Aimbot.Enabled and UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
+        local target = GetClosestPlayer()
+        if target then
+            workspace.CurrentCamera.CFrame = CFrame.new(
+                workspace.CurrentCamera.CFrame.Position,
+                target.Character[Environment.Aimbot.AimPart].Position
+            )
+        end
+    end
+end)
+
+--// GUI SETUP
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local SliderBack = Instance.new("Frame")
+local SliderFill = Instance.new("Frame")
+local SliderButton = Instance.new("TextButton")
+local FOVLabel = Instance.new("TextLabel")
+local FOVToggleButton = Instance.new("TextButton")  -- FOV visibility toggle button
+local AimbotToggleButton = Instance.new("TextButton")  -- Aimbot ON/OFF toggle button
+
+ScreenGui.Parent = game.CoreGui
+
+-- Frame
+Frame.Size = UDim2.new(0, 220, 0, 180)  -- Adjusted size to accommodate two buttons
+Frame.Position = UDim2.new(0, 50, 0, 50)
+Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- All black
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+
+-- Title
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "TAONG GOMA AIMBOT" -- Custom Title
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.SourceSansBold
+Title.Parent = Frame
+
+-- Slider background
+SliderBack.Size = UDim2.new(0.8, 0, 0, 6)
+SliderBack.Position = UDim2.new(0.1, 0, 0.35, 0)
+SliderBack.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- All black
+SliderBack.BorderSizePixel = 0
+SliderBack.Parent = Frame
+
+-- Slider fill
+SliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+SliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White fill
+SliderFill.BorderSizePixel = 0
+SliderFill.Parent = SliderBack
+
+-- Slider button
+SliderButton.Size = UDim2.new(0, 20, 0, 20)
+SliderButton.Position = UDim2.new(0.5, -10, 0.5, -10)
+SliderButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- White button
+SliderButton.Text = ""
+SliderButton.BorderSizePixel = 0
+SliderButton.Parent = Frame
+
+-- FOV text display
+FOVLabel.Size = UDim2.new(1, 0, 0, 20)
+FOVLabel.Position = UDim2.new(0, 0, 0.45, 0)
+FOVLabel.BackgroundTransparency = 1
+FOVLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+FOVLabel.TextSize = 14
+FOVLabel.Font = Enum.Font.SourceSans
+FOVLabel.Text = "FOV: " .. Environment.FOVSettings.Amount
+FOVLabel.Parent = Frame
+
+-- FOV Visibility Toggle button (top)
+FOVToggleButton.Size = UDim2.new(0.8, 0, 0, 30)
+FOVToggleButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+FOVToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+FOVToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+FOVToggleButton.TextSize = 14
+FOVToggleButton.Font = Enum.Font.SourceSansBold
+FOVToggleButton.Text = "FOV: Visible"
+FOVToggleButton.Parent = Frame
+
+-- Aimbot ON/OFF Toggle button (bottom)
+AimbotToggleButton.Size = UDim2.new(0.8, 0, 0, 30)
+AimbotToggleButton.Position = UDim2.new(0.1, 0, 0.85, 0)
+AimbotToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+AimbotToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotToggleButton.TextSize = 14
+AimbotToggleButton.Font = Enum.Font.SourceSansBold
+AimbotToggleButton.Text = "Aimbot: On"
+AimbotToggleButton.Parent = Frame
+
+-- FOV slider logic
+local dragging = false
+
+local function updateFOV(percent)
+    percent = math.clamp(percent, 0, 1)
+    SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+    SliderButton.Position = UDim2.new(percent, -10, 0.5, -10)
+    local newFOV = math.floor(50 + percent * 400)
+    Environment.FOVSettings.Amount = newFOV
+    FOVLabel.Text = "FOV: " .. newFOV
+end
+
+SliderButton.MouseButton1Down:Connect(function()
+    dragging = true
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local percent = (UIS:GetMouseLocation().X - SliderBack.AbsolutePosition.X) / SliderBack.AbsoluteSize.X
+        updateFOV(percent)
+    end
+end)
+
+-- Toggle FOV visibility
+FOVToggleButton.MouseButton1Click:Connect(function()
+    Environment.FOVSettings.Visible = not Environment.FOVSettings.Visible
+    if Environment.FOVSettings.Visible then
+        FOVToggleButton.Text = "FOV: Visible"
+        FOVToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    else
+        FOVToggleButton.Text = "FOV: Hidden"
+        FOVToggleButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+    end
+end)
+
+-- Toggle Aimbot functionality (ON/OFF)
+AimbotToggleButton.MouseButton1Click:Connect(function()
+    if Environment.Aimbot.Enabled then
+        -- Turn Aimbot off
+        Environment.Aimbot.Enabled = false
+        AimbotToggleButton.Text = "Aimbot: Off"  -- Change text to Off
+        AimbotToggleButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)  -- Red background
+    else
+        -- Turn Aimbot on
+        Environment.Aimbot.Enabled = true
+        AimbotToggleButton.Text = "Aimbot: On"  -- Change text to On
+        AimbotToggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)  -- Green background
+    end
+end)
+
+-- Initial setup for the slider
+updateFOV((Environment.FOVSettings.Amount - 50) / 400)
+end)
+
 -- Particle Snow Effect inside main GUI
 local function createSnowParticle()
     local particle = Instance.new("ImageLabel")
