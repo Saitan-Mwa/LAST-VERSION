@@ -419,9 +419,9 @@ local tabNames = {
 	"SCANNER", 
 	"ALADIA", 
 	"TROLL", 
-	"FANTASMA", 
-        "VERSION 6",
-	"LAST VERSION" 
+	"VERSION 6",
+	"LAST VERSION",
+	"RP TELEPORT" 
 }
 local tabPanels = {}
 local currentTab = nil
@@ -6440,6 +6440,623 @@ end)
 
 -- Initial setup for the slider
 updateFOV((Environment.FOVSettings.Amount - 50) / 400)
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("BAGONG BARYO SPAWN GUN [3KTG]", function()
+	--// Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+--// GUI Setup
+local gui = Instance.new("ScreenGui")
+gui.Name = "GiveAllCashGUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 400)
+frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 1
+frame.BorderColor3 = Color3.fromRGB(40, 40, 40)
+frame.Parent = gui
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+title.Text = "Bagong Baryo City"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.Parent = frame
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 8)
+
+-- Dropdown (Select Gun)
+local dropdown = Instance.new("TextButton")
+dropdown.Size = UDim2.new(1, -20, 0, 30)
+dropdown.Position = UDim2.new(0, 10, 0, 50)
+dropdown.Text = "Select Gun"
+dropdown.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+dropdown.TextColor3 = Color3.new(1, 1, 1)
+dropdown.Font = Enum.Font.Gotham
+dropdown.TextSize = 14
+dropdown.Parent = frame
+Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 6)
+
+local gunList = {"Silenced Pistol", "Crowbar", "Drill", "Oxy", "Pen Gun", "AK-47", "AmmoBox"}
+
+local selectedGun = nil
+
+-- Dropdown Menu
+local dropdownFrame = Instance.new("Frame")
+dropdownFrame.Size = UDim2.new(1, -20, 0, #gunList * 25)
+dropdownFrame.Position = UDim2.new(0, 10, 0, 85)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+dropdownFrame.Visible = false
+dropdownFrame.Parent = frame
+Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0, 5)
+
+for i, gun in ipairs(gunList) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 25)
+    btn.Position = UDim2.new(0, 0, 0, (i - 1) * 25)
+    btn.Text = gun
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 12
+    btn.Parent = dropdownFrame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
+
+    btn.MouseButton1Click:Connect(function()
+        selectedGun = gun
+        dropdown.Text = gun
+        dropdownFrame.Visible = false
+    end)
+end
+
+dropdown.MouseButton1Click:Connect(function()
+    dropdownFrame.Visible = not dropdownFrame.Visible
+end)
+
+-- Preset Buttons (Aligned)
+local buttonSpacing = 5
+local buttonWidth = (300 - 40 - (buttonSpacing * 2)) / 3
+local buttonYOffset = 95 + #gunList * 25
+
+local amountBox = Instance.new("TextBox") -- forward declare here so buttons can use it
+
+for i, data in ipairs({
+    {Label = "Give 100K", Value = -100000},
+    {Label = "Give 1M", Value = -1000000},
+    {Label = "Give 10M", Value = -10000000},
+}) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, buttonWidth, 0, 30)
+    btn.Position = UDim2.new(0, 10 + (buttonWidth + buttonSpacing) * (i - 1), 0, buttonYOffset)
+    btn.Text = data.Label
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 12
+    btn.Parent = frame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
+
+    btn.MouseButton1Click:Connect(function()
+        amountBox.Text = tostring(data.Value)
+    end)
+end
+
+-- Amount Box
+amountBox.Size = UDim2.new(1, -20, 0, 30)
+amountBox.Position = UDim2.new(0, 10, 0, buttonYOffset + 40)
+amountBox.PlaceholderText = "Enter Amount (TAONG GOMA CMD)"
+amountBox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+amountBox.TextColor3 = Color3.new(1, 1, 1)
+amountBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+amountBox.Font = Enum.Font.Gotham
+amountBox.TextSize = 12
+amountBox.Parent = frame
+Instance.new("UICorner", amountBox).CornerRadius = UDim.new(0, 6)
+
+-- Auto Give Button
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(1, -20, 0, 35)
+toggle.Position = UDim2.new(0, 10, 0, buttonYOffset + 80)
+toggle.Text = "Start Auto Give"
+toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 14
+toggle.Parent = frame
+Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 6)
+
+-- Auto Give Logic
+local giving = false
+
+toggle.MouseButton1Click:Connect(function()
+    giving = not giving
+    toggle.Text = giving and "Stop Auto Give" or "Start Auto Give"
+    while giving do
+        if selectedGun and tonumber(amountBox.Text) then
+            ReplicatedStorage.GiveAyudaTools:FireServer(selectedGun, tonumber(amountBox.Text))
+        end
+        task.wait(4)
+    end
+end)
+
+-- RightShift to toggle GUI
+UIS.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.RightShift then
+        gui.Enabled = not gui.Enabled
+    end
+end)
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("LAS PINAS ROLEPLAY [3KTG]", function()
+	--// Services
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+--// GUI Setup
+local gui = Instance.new("ScreenGui")
+gui.Name = "GiveAllCashGUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 450)  -- Adjusted to fit all buttons and Auto Buy controls
+frame.Position = UDim2.new(0.5, -150, 0.5, -225)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 1
+frame.BorderColor3 = Color3.fromRGB(40, 40, 40)
+frame.Parent = gui
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+title.Text = "LAS PINAS ROLEPLAY"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.Parent = frame
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 8)
+
+-- List of items to buy
+local items = {
+    {"Silenced Pistol", "Silenced Pistol"},
+    {"Heavy Vest", "Heavy Vest"},
+    {"Glock-19", "Glock-19"},
+    {"Oxy", "Oxy"},
+    {"Vector", "Vector"},
+    {"Tail", "Tail"},
+    {"AmmoBox", "AmmoBox"}
+}
+
+local selectedItem = nil
+
+-- Create Dropdown Button
+local dropdown = Instance.new("TextButton")
+dropdown.Size = UDim2.new(1, -20, 0, 30)
+dropdown.Position = UDim2.new(0, 10, 0, 50)
+dropdown.Text = "Select Item"
+dropdown.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+dropdown.TextColor3 = Color3.new(1, 1, 1)
+dropdown.Font = Enum.Font.Gotham
+dropdown.TextSize = 14
+dropdown.Parent = frame
+Instance.new("UICorner", dropdown).CornerRadius = UDim.new(0, 6)
+
+local dropdownFrame = Instance.new("Frame")
+dropdownFrame.Size = UDim2.new(1, -20, 0, #items * 30)  -- Adjust the height based on item count
+dropdownFrame.Position = UDim2.new(0, 10, 0, 85)
+dropdownFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+dropdownFrame.Visible = false
+dropdownFrame.Parent = frame
+Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0, 5)
+
+-- Create buttons inside the dropdown
+for i, item in ipairs(items) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.Position = UDim2.new(0, 0, 0, (i - 1) * 30)
+    btn.Text = item[1]
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 12
+    btn.Parent = dropdownFrame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
+
+    btn.MouseButton1Click:Connect(function()
+        selectedItem = item[2]  -- Store the selected item's internal name
+        dropdown.Text = item[1]  -- Update dropdown text to selected item
+        dropdownFrame.Visible = false  -- Hide the dropdown after selection
+    end)
+end
+
+-- Toggle Dropdown Visibility
+dropdown.MouseButton1Click:Connect(function()
+    dropdownFrame.Visible = not dropdownFrame.Visible
+end)
+
+-- Auto Buy Toggle Button
+local toggle = Instance.new("TextButton")
+toggle.Size = UDim2.new(1, -20, 0, 35)
+toggle.Position = UDim2.new(0, 10, 0, 85 + (#items * 30) + 10)
+toggle.Text = "Start Auto Buy"
+toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.Font = Enum.Font.GothamBold
+toggle.TextSize = 14
+toggle.Parent = frame
+Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 6)
+
+local isAutoBuying = false
+
+toggle.MouseButton1Click:Connect(function()
+    isAutoBuying = not isAutoBuying
+    toggle.Text = isAutoBuying and "Stop Auto Buy" or "Start Auto Buy"
+    
+    while isAutoBuying do
+        if selectedItem then
+            ReplicatedStorage.ShopRemotes["BuyItem_d2d83578-7a8d-4ef0-bd7c-885739d76ce9"]:FireServer(selectedItem, -100000)
+            print("Auto-buying " .. selectedItem)
+        end
+        task.wait(4)  -- Wait 1 second between purchases to prevent spam
+    end
+end)
+
+-- RightShift to toggle GUI
+UIS.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.RightShift then
+        gui.Enabled = not gui.Enabled
+    end
+end)
+end)
+
+--// Function to Add Buttons to Main Menu
+local function addMainMenuButton(text, callback)
+	local panel = tabPanels["RP TELEPORT"]
+	if not panel then return end
+
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, -20, 0, 36)
+	button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Font = Enum.Font.GothamSemibold
+	button.TextSize = 14
+	button.Text = text
+	button.AutoButtonColor = false
+	button.Parent = panel
+	Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		}):Play()
+	end)
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		}):Play()
+	end)
+
+	button.MouseButton1Click:Connect(function()
+		clickSound:Play()
+		callback()
+	end)
+end
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("HP [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-1285.816162109375, 2.7281417846679688, -1737.093994140625)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("CLOTHING [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-670.8401489257812, 6.163100242614746, -1437.7149658203125)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("GUN SHOP [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-407.4294128417969, 4.161787033081055, -645.768310546875)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("CAR DEALER [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-237.59339904785156, 5.096484661102295, -597.2655029296875)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("JOB [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(114.08740997314453, 5.647642135620117, -293.3097839355469)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("PHARMACY [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-888.1544799804688, 1.4847240447998047, -2064.15966796875)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("SPAWN CAR [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-456.9869384765625, 4.547006607055664, -655.15087890625)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("TRAPHOUSE ENTRANCE [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-373.43365478515625, 45.74742126464844, 1702.6312255859375)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("TRAPHOUSE WAITING [DOMINION]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(-348.4434814453125, 43.28300857543945, 1896.1903076171875)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("LEGION SQUARE [LAS PINAS RP]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(2258.17333984375, -321.152587890625, -321.152587890625)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("SPAWN CAR [LAS PINAS RP]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(2193.743896484375, -324.35784912109375, -1310.551025390625)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
+end)
+
+--// 8 Buttons in Main Menu
+addMainMenuButton("TRAPHOUSE [LAS PINAS RP]", function()
+	-- LocalScript (Client-Side)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Define the target position
+local targetPosition = Vector3.new(1612.0211181640625, -334.8367004394531, -1030.1751708984375)
+
+-- Function to teleport the player immediately
+local function teleportToTarget()
+    -- Check if HumanoidRootPart exists and teleport immediately
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character:SetPrimaryPartCFrame(CFrame.new(targetPosition))  -- Teleport to target position
+    else
+        print("Error: HumanoidRootPart missing.")
+    end
+end
+
+-- Teleport as soon as the character is fully loaded
+teleportToTarget()
 end)
 
 -- Particle Snow Effect inside main GUI
