@@ -870,7 +870,7 @@ addMainMenuButton("BIG HEAD [3KTG]", function()
    - Keeps collisions off (safe)
 ]]
 
-_G.HeadSize = 13         -- laki ng ulo
+_G.HeadSize = 7         -- laki ng ulo
 _G.Transparency = 1   -- 0 = solid, 1 = invisible
 _G.Color = "Really blue" -- kulay ng ulo
 _G.Material = "Neon"    -- material
